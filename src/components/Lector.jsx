@@ -21,10 +21,10 @@ export const Lector = ({ idioma, texto }) => {
   };
   return (
     <div>
-      <Button variant="primary" onClick={() => hablar(idioma, texto)}>
+      <Button className="m-1" variant="primary" onClick={() => hablar(idioma, texto)}>
         Escuchar traducción
       </Button>
-      <Button onClick={stop}>Detener reproducción</Button>
+      <Button  className="m-1" onClick={stop}>Detener reproducción</Button>
       {/* <Button onClick={pause}>Pausar reproducción</Button>
       <Button onClick={start}>Reanudar reproducción</Button> */}
     </div>

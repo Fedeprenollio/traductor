@@ -17,6 +17,11 @@ export const Traductor = () => {
   const [hayTraduccion, setHayTraduccion] = useState(false);
   const handleText = (e) => {
     setTextoEntrante(e.target.value);
+    if(!e.target.value){
+      setNombreIdiomaDetectado(false)
+      setClaveIdiomaDetectado(false);
+    }
+    console.log("texto:",textoEntrante)
   };
 
   const todosIdiomas = [
@@ -256,11 +261,15 @@ export const Traductor = () => {
             onChange={(e) => {
               setChecked(e.currentTarget.checked);
               setClaveIdiomaDetectado(false);
+              if(!checked){
+                setNombreIdiomaDetectado("")
+              }
+             
             }}
           >
             Detectar idioma
           </ToggleButton>
-          {nombreIdiomaDetectado && <p className="checked">{nombreIdiomaDetectado}</p>}
+          {checked && <p className="checked">{nombreIdiomaDetectado.length>0 ? nombreIdiomaDetectado : "Esperando..." }</p>}
           {/* <Form.Label>Ingresa el texto a traducir</Form.Label> */}
           <Form.Control
             onChange={handleText}
