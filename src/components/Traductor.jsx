@@ -4,6 +4,8 @@ import "../App.css";
 import axios from "axios";
 import { Lector } from "./Lector";
 import Swal from "sweetalert2";
+// const API_KEY = "8d05dccac7mshc302b4bb1ebe8edp106464jsn35a65554485a"
+const API_KEY = "dfb1bc3d4dmsh07415eecc2d2a6fp144ea4jsnb81177a3a1cd"
 
 export const Traductor = () => {
   const [textoEntrante, setTextoEntrante] = useState("");
@@ -17,11 +19,10 @@ export const Traductor = () => {
   const [hayTraduccion, setHayTraduccion] = useState(false);
   const handleText = (e) => {
     setTextoEntrante(e.target.value);
-    if(!e.target.value){
-      setNombreIdiomaDetectado(false)
-      setClaveIdiomaDetectado(false);
+    if (!e.target.value) {
+      setNombreIdiomaDetectado(false);
+      setClaveIdiomaDetectado();
     }
-    console.log("texto:",textoEntrante)
   };
 
   const todosIdiomas = [
@@ -149,22 +150,40 @@ export const Traductor = () => {
   };
 
   const obtenerFuenteDelIdioma = async () => {
-    const rta = await axios.post(`https://libretranslate.de/detect`, {
-      q: textoEntrante,
-    });
-    setClaveIdiomaDetectado(rta.data[0].language);
-
-    const idiomaDetectado = todosIdiomas.find(
-      (idioma) => idioma.code == rta.data[0].language
-    );
-
-    setNombreIdiomaDetectado(idiomaDetectado.name);
+    // const rta = await axios.post(`https://libretranslate.com/detect`, {
+    //   q: textoEntrante,
+    // });
+  
+    const idiomaDetectado =  todosIdiomas.find((idioma) => idioma.code == claveIdiomaDetectado);
+    console.log(claveIdiomaDetectado)
+    // setClaveIdiomaDetectado(response.data.detections[0]["0"].language);
+    
+    setNombreIdiomaDetectado("");
+   
+      // console.log(idiomaDetectado)
+ 
   };
 
   useEffect(() => {
-    axios.get("https://libretranslate.de/languages").then((rta) => {
+    axios.get("https://libretranslate.com/languages").then((rta) => {
       setListaIdiomas(rta.data);
+      
     });
+    // const options = {
+    //   method: 'GET',
+    //   headers: {
+    //     'Accept-Encoding': 'application/gzip',
+    //     'X-RapidAPI-Key': '8d05dccac7mshc302b4bb1ebe8edp106464jsn35a65554485a',
+    //     'X-RapidAPI-Host': 'google-translate1.p.rapidapi.com'
+    //   }
+    // };
+    
+    // fetch('https://google-translate1.p.rapidapi.com/language/translate/v2/languages', options)
+    //   .then(response => response.json())
+    //   .then(response => console.log(response))
+    //   .catch(err => console.error(err));
+
+
 
     if (checked) {
       obtenerFuenteDelIdioma();
@@ -219,19 +238,37 @@ export const Traductor = () => {
       target: claveIdiomaSeleccionado,
     };
 
-    axios
-      .post(`https://libretranslate.de/translate`, data)
-      .then((respuesta) => {
-        setTextoResultante(respuesta.data.translatedText);
-        setLoading(false);
-        setHayTraduccion(true);
-      });
+    // axios
+    //   .post(`https://libretranslate.com/translate`, data)
+    //   .then((respuesta) => {
+    //     setTextoResultante(respuesta.data.translatedText);
+    //     setLoading(false);
+    //     setHayTraduccion(true);
+    //   });
+   
+
+
+
+    const options = {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': '8d05dccac7mshc302b4bb1ebe8edp106464jsn35a65554485a',
+        'X-RapidAPI-Host': 'translated-mymemory---translation-memory.p.rapidapi.com'
+      }
+    };
+    
+    fetch(`https://translated-mymemory---translation-memory.p.rapidapi.com/get?langpair=${claveIdiomaDetectado}|${claveIdiomaSeleccionado}&q=${textoEntrante}&mt=1&onlyprivate=0&de=a%40b.c`, options)
+      .then(response => response.json())
+      .then(response => {console.log(response);setTextoResultante(response.responseData.translatedText);setLoading(false);setHayTraduccion(true)})
+      .catch(err => console.error(err));
+    console.log("si si")
   };
 
   return (
     <div className="App">
       <div className="app-header">
         <h2 className="header">Traductor de texto</h2>
+        <p>Nota: Ante la dificultad de encontrar alguna API gratuita para traducir y luego de intetar usar la API de google y libretranslate.com, he encontrado una que cumple bastante bien mis propósitos academicos, pero  he tenido que deshabilitar el botón de "Detectar automaticamente el idioma a traducir" ya que la API en uso no contiene dicha función. </p>
       </div>
       <div className="app-body">
         <Form.Group>
@@ -252,6 +289,7 @@ export const Traductor = () => {
           </Form.Select>
 
           <ToggleButton
+          disabled
             className="mb-2"
             id="toggle-check"
             type="checkbox"
@@ -261,15 +299,21 @@ export const Traductor = () => {
             onChange={(e) => {
               setChecked(e.currentTarget.checked);
               setClaveIdiomaDetectado(false);
-              if(!checked){
-                setNombreIdiomaDetectado("")
+              if (!checked) {
+                setNombreIdiomaDetectado("");
               }
-             
+              console.log("hola")
             }}
           >
             Detectar idioma
           </ToggleButton>
-          {checked && <p className="checked">{nombreIdiomaDetectado.length>0 ? nombreIdiomaDetectado : "Esperando..." }</p>}
+          {checked && (
+            <p className="checked">
+              {nombreIdiomaDetectado?.length > 0
+                ? nombreIdiomaDetectado
+                : "Esperando..."}
+            </p>
+          )}
           {/* <Form.Label>Ingresa el texto a traducir</Form.Label> */}
           <Form.Control
             onChange={handleText}
@@ -289,16 +333,16 @@ export const Traductor = () => {
           </Form.Select>
 
           <Form.Control
-          as="textarea"
+            as="textarea"
             defaultValue={textoResultante}
             placeholder="Traducción"
           />
           <Button className="m-1" onClick={traducirTexto} variant="primary">
             Traducir
           </Button>
-      {hayTraduccion && (
-        <Lector idioma={claveIdiomaSeleccionado} texto={textoResultante} />
-      )}
+          {hayTraduccion && (
+            <Lector idioma={claveIdiomaSeleccionado} texto={textoResultante} />
+          )}
           {loading && <p>Traduciendo...</p>}
         </Form.Group>
       </div>
